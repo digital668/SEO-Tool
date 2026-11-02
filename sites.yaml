@@ -1,0 +1,74 @@
+# ─────────────────────────────────────────────────────────────
+#  SEO Autopilot — site list
+#  One block per WordPress site. Passwords are NOT stored here:
+#  each site's Application Password goes in a GitHub Secret named
+#  WP_PASS_<KEY>  (key upper-cased, dashes → underscores)
+#  e.g. key "nexgen-internet"  →  secret  WP_PASS_NEXGEN_INTERNET
+# ─────────────────────────────────────────────────────────────
+
+defaults:
+  language: English
+  country: US                # search market for research (US, IN, GB …)
+  interval_days: 2           # ONE new blog every 2 days per site (= 5 per 10-day cycle, repeating)
+  review_days: 3             # scheduled posts go live this many days after writing (your review window)
+  min_words: 1200
+  builder: auto              # auto-detects Divi / Elementor / Gutenberg. Or set: divi | elementor | gutenberg
+  use_web_research: true     # Claude checks what ranks on Google before writing (~$0.01 per search)
+  images: true               # free Pexels / Openverse photo, uploaded with keyword alt text
+  toc_plugin: false          # true if Easy TOC / LuckyWP / Rank Math TOC block adds a table of contents itself
+  publish_mode: schedule     # schedule | draft | off
+  ymyl: false                # true for money / credit / health / legal sites → ALWAYS draft, a person approves
+  pause_on_traffic_drop: 0.35  # stop writing for a site if its weekly clicks drop 35%+ (0 = never pause)
+  author_id: null            # WordPress user ID shown as author (use a real person with a bio)
+  default_category: Blog
+
+sites:
+  # ── US internet sites: same niche → same "group", so they never get the same topic
+  - key: nexgen-internet
+    name: NexGen Internet Pro
+    url: https://www.nexgeninternetpro.com
+    wp_user: admin
+    gsc_property: sc-domain:nexgeninternetpro.com   # or "https://www.example.com/" for URL-prefix properties
+    group: us-internet
+    niche: Home internet providers, broadband plans and internet availability in the USA
+    audience: US households comparing or switching internet providers
+    tone: Helpful, plain-English, comparison-driven
+    seed_keywords: [internet providers near me, cheap internet plans, fiber internet]
+    competitors: [broadbandnow.com, highspeedinternet.com]
+    enabled: true
+
+  # - key: broadband-saver
+  #   name: Broadband Saver
+  #   url: https://www.example-broadbandsaver.com
+  #   wp_user: admin
+  #   gsc_property: sc-domain:example-broadbandsaver.com
+  #   group: us-internet
+  #   builder: divi
+  #   niche: Saving money on home internet and broadband bills in the USA
+  #   seed_keywords: [lower internet bill, internet deals, low income internet]
+  #   competitors: [allconnect.com]
+  #   enabled: true
+
+  # ── Money / health sites: ymyl → every post waits as a draft for a person to approve
+  # - key: bettercreditpro
+  #   name: Better Credit Pro
+  #   url: https://bettercreditpro.com
+  #   wp_user: admin
+  #   group: us-credit
+  #   ymyl: true
+  #   niche: Credit repair and credit score education in the USA
+  #   seed_keywords: [how to raise credit score, credit repair]
+  #   enabled: true
+
+  - key: kaizen-klub
+    name: Kaizen Klub
+    url: https://kaizenklub.in
+    wp_user: admin
+    gsc_property: sc-domain:kaizenklub.in
+    country: IN
+    niche: Strength training, recovery and MMA gym in Koramangala, Bengaluru
+    audience: Bengaluru gym-goers and beginners in strength and combat sports
+    tone: Coach-like, motivating, practical
+    seed_keywords: [gym in koramangala, mma classes bangalore, strength training]
+    competitors: [cult.fit]
+    enabled: false           # flip to true after "test" passes
