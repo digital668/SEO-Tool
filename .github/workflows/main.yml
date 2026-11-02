@@ -1,0 +1,73 @@
+name: SEO Autopilot
+
+on:
+  schedule:
+    - cron: "17 1 * * *"        # every day 01:17 UTC (6:47 am IST): audit (Mon), research (Mon+Thu),
+                                # then one blog for each site that is due, then the dashboard
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "What to run"
+        type: choice
+        default: test
+        options: [test, due, plan, write, daily, audit, research, report, auto]
+      site:
+        description: "Only this site key (blank = all enabled sites)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seo-autopilot
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Run
+        env:
+          ALL_SECRETS: ${{ toJSON(secrets) }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          AUTOPILOT_PAUSED: ${{ vars.AUTOPILOT_PAUSED }}
+          CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}
+          IN_CMD: ${{ inputs.command }}
+          IN_SITE: ${{ inputs.site }}
+
+        run: |
+          CMD="${IN_CMD:-auto}"
+          ARGS=()
+          [ -n "$IN_SITE" ] && ARGS+=(--site "$IN_SITE")
+          python -m seo_platform "$CMD" "${ARGS[@]}"
+
+      - name: Save results to the repo
+        if: always()
+        run: |
+          git config user.name  "seo-autopilot[bot]"
+          git config user.email "seo-autopilot@users.noreply.github.com"
+          git add data docs/data
+          git diff --cached --quiet || git commit -m "SEO Autopilot: ${{ inputs.command || 'scheduled run' }} $(date -u +%F)"
+          git pull --rebase --autostash && git push
+
+      - name: Upload dashboard (open dashboard.html from the run's Artifacts)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard
+          path: data/dashboard.html
+          if-no-files-found: ignore
+          retention-days: 30
