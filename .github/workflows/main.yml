@@ -28,9 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -57,15 +57,20 @@ jobs:
       - name: Save results to the repo
         if: always()
         run: |
+          mkdir -p data docs/data
           git config user.name  "seo-autopilot[bot]"
           git config user.email "seo-autopilot@users.noreply.github.com"
-          git add data docs/data
-          git diff --cached --quiet || git commit -m "SEO Autopilot: ${{ inputs.command || 'scheduled run' }} $(date -u +%F)"
-          git pull --rebase --autostash && git push
+          git add -A data docs/data
+          if git diff --cached --quiet; then echo "Nothing new to save"; exit 0; fi
+          git commit -m "SEO Autopilot: ${IN_CMD:-scheduled run} $(date -u +%F)"
+          git pull --rebase --autostash || true
+          git push || echo "::warning title=Save results::Could not push results. Go to Settings → Actions → General → Workflow permissions → choose 'Read and write permissions' → Save."
+        env:
+          IN_CMD: ${{ inputs.command }}
 
       - name: Upload dashboard (open dashboard.html from the run's Artifacts)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: dashboard
           path: data/dashboard.html
