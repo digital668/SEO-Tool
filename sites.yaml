@@ -60,6 +60,44 @@ sites:
   #   seed_keywords: [how to raise credit score, credit repair]
   #   enabled: true
 
+  # ── US IT / BPO brands: same niche → same "group", so they never get the same topic.
+  #    Add Impeck LLC, Mergen Infotech and Versatile IT later with  group: us-it-bpo
+  - key: globel-connect                      # → GitHub secret WP_PASS_GLOBEL_CONNECT
+    name: Globel Connect
+    url: https://globelconnect.in
+    # gsc_property: sc-domain:globelconnect.in   # uncomment once Search Console access is added (README step 5)
+    country: US                              # search market the blogs target; change to IN for Indian clients
+    group: us-it-bpo
+    builder: auto                            # site uses an Elegant Themes (Divi) theme — auto-detect will confirm
+    publish_mode: draft                      # first 2 weeks: drafts only, then change to: schedule
+    min_words: 1100
+    default_category: Blogs                  # existing blog category on the site
+    niche: >-
+      B2B lead generation (healthcare/medical, education, financial, customised and digital-marketing leads)
+      and IT/BPO outsourcing (data entry, e-support, international call center, data conversion)
+    audience: >-
+      Owners and marketing/operations heads of healthcare, education and finance businesses who want
+      affordable, high-quality leads or want to outsource support and back-office work
+    tone: Professional, clear and practical B2B — trustworthy and transparent, no hype
+    seed_keywords: [healthcare lead generation, education lead generation, b2b lead generation services, data entry outsourcing, international call center services, financial lead generation]
+    competitors: []                          # add 2–3 competitor domains for gap research
+    writing_rules: |
+      - Write for business buyers: explain costs, process, quality checks, compliance and what to ask a vendor.
+      - Where relevant, link to these service pages: https://globelconnect.in/healthcare-lead-generation/ ,
+        https://globelconnect.in/education-lead-generation/ , https://globelconnect.in/financial-lead-generation-2/ ,
+        https://globelconnect.in/customized-lead-generation/ , https://globelconnect.in/data-entry-services/ ,
+        https://globelconnect.in/international-call-center-services/ , https://globelconnect.in/e-support-services/ ,
+        https://globelconnect.in/data-conversion-services/ , https://globelconnect.in/digital-marketing-services/
+      - Never promise guaranteed lead numbers, conversion rates or ROI; no invented client results or testimonials.
+      - For healthcare/finance leads, mention consent and data-privacy compliance (e.g. TCPA, HIPAA, GDPR where relevant)
+        in general terms only — no legal advice.
+    cta:
+      title: Need better leads or extra support capacity?
+      text: Tell us about your business and goals — the Globel Connect team will suggest the right lead generation or outsourcing plan.
+      button: Talk to Our Team
+      url: https://globelconnect.in/contact-us/
+    enabled: true
+
   - key: kaizen-klub
     name: Kaizen Klub
     url: https://blogs.kaizenklub.in          # the WordPress blog (the main kaizenklub.in site is not WordPress)
