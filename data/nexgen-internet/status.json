@@ -1,3 +1,5 @@
 {
- "test_error": "secret WP_PASS_NEXGEN_INTERNET is not set"
+ "test_error": "secret WP_PASS_NEXGEN_INTERNET is not set",
+ "paused_reason": null,
+ "next_due": "not this site's day in the cycle"
 }
