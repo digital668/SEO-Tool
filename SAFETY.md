@@ -18,6 +18,8 @@ Google does **not** penalise content just because AI helped write it. It penalis
 | **No cross-linking between your own sites.** Links to any other domain in `sites.yaml` are removed. | A visible "network" footprint and link-scheme signals. |
 | **Outbound links are kept only to trusted sources** (government, education, regulators, major publications; you can add domains with `external_links_ok`). | Links to spammy or non-existent pages. |
 | **Traffic-drop auto-pause:** if a site's weekly clicks fall 35%+, writing stops for that site. | Continuing to publish into a site that may have a problem (manual action, update hit, technical fault). |
+| **Content-quality gate:** filler, AI-pattern, repetition and information-density scoring based on Google's Quality Rater Guidelines (scaled content abuse). A score under 60 means the post becomes a draft. | Thin, generic posts going live. |
+| **Weekly Google index check** of every auto-written post. You're warned if more than half aren't indexed. | Continuing to publish when Google is already ignoring the posts. This is an early warning, before any penalty. |
 | **Kill switch:** in GitHub, go to Settings → Variables → `AUTOPILOT_PAUSED = true`. | One switch stops all writing on all sites immediately. |
 | **The platform only creates new posts.** It never edits, deletes or noindexes your existing pages. | Accidental damage to pages that already rank. |
 | **Competitor pages are read only as statistics** (word counts, headings, common terms). It respects robots.txt and fetches slowly. | Copying, or anything that looks like scraping. |
@@ -31,7 +33,7 @@ Google does **not** penalise content just because AI helped write it. It penalis
 1. **Real author:** set `author_id` to a real person's WordPress account with a photo, a short bio of their experience and links to their profiles. Add an **About** page and a **Contact** page.
 2. **Make each site different:** give each site its own `niche`, `audience`, `tone` and `seed_keywords` in `sites.yaml`. Sites that read the same are the main footprint risk.
 3. **Review the drafts.** Spend about 5 minutes on each scheduled post during the review window. Add one real detail from your own experience: a local price, a customer question, a photo you took. This is the single strongest protection against scaled content abuse.
-4. **WordPress user:** create a separate user for the platform (Editor role is enough). Use a strong Application Password and turn on 2FA on admin accounts. Use Administrator only if you want FAQ schema added automatically.
+4. **Connect with the Connector plugin, not an Application Password.** Its key can only create drafts or scheduled posts and upload images. It can't publish instantly, edit, delete or change settings, so even a leaked key can't damage the site. Turn on 2FA for your admin accounts.
 5. **Lead-gen forms (US sites):** any form that collects phone numbers needs a privacy policy link and clear consent text for calls and texts. Have this checked for US telemarketing rules (TCPA). If you earn commissions from providers, add a short disclosure to comply with FTC rules.
 6. **No city doorway pages:** don't create near-identical "Internet providers in [City]" pages for hundreds of cities. Google calls that doorway abuse. The platform doesn't do it, so don't add it manually either.
 

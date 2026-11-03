@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────
 #  SEO Autopilot — site list
-#  One block per WordPress site. Passwords are NOT stored here:
-#  each site's Application Password goes in a GitHub Secret named
+#  One block per WordPress site. Keys are NOT stored here:
+#  each site's Connector-plugin key goes in a GitHub Secret named
 #  WP_PASS_<KEY>  (key upper-cased, dashes → underscores)
 #  e.g. key "nexgen-internet"  →  secret  WP_PASS_NEXGEN_INTERNET
 # ─────────────────────────────────────────────────────────────
@@ -35,7 +35,7 @@ sites:
     tone: Helpful, plain-English, comparison-driven
     seed_keywords: [internet providers near me, cheap internet plans, fiber internet]
     competitors: [broadbandnow.com, highspeedinternet.com]
-    enabled: true
+    enabled: false           # switch on when its WP_PASS_NEXGEN_INTERNET secret is added
 
   # - key: broadband-saver
   #   name: Broadband Saver
@@ -62,13 +62,36 @@ sites:
 
   - key: kaizen-klub
     name: Kaizen Klub
-    url: https://kaizenklub.in
-    wp_user: admin
-    gsc_property: sc-domain:kaizenklub.in
+    url: https://blogs.kaizenklub.in          # the WordPress blog (the main kaizenklub.in site is not WordPress)
+    gsc_property: sc-domain:kaizenklub.in     # or "https://blogs.kaizenklub.in/" if you verified only the blog URL
     country: IN
-    niche: Strength training, recovery and MMA gym in Koramangala, Bengaluru
-    audience: Bengaluru gym-goers and beginners in strength and combat sports
-    tone: Coach-like, motivating, practical
-    seed_keywords: [gym in koramangala, mma classes bangalore, strength training]
+    builder: auto
+    publish_mode: draft                       # first 2 weeks: drafts only, you review & publish. Then change to: schedule
+    min_words: 1100
+    niche: >-
+      Community gym in Koramangala, Bengaluru — strength & conditioning, MMA & striking, yoga & mobility,
+      transformation programs, and recovery (cold plunge, sauna, red light therapy)
+    audience: Bengaluru gym-goers, beginners and working professionals in Koramangala / HSR who want coached training and proper recovery
+    tone: Coach-like, warm and practical — "Train. Recover. Belong." Small, relentless improvements.
+    seed_keywords: [gym in koramangala, strength training for beginners, mma classes in bangalore, recovery gym bangalore, yoga classes in koramangala]
     competitors: [cult.fit]
-    enabled: false           # flip to true after "test" passes
+    external_links_ok: [acefitness.org, acsm.org, powerlifting.sport, health.harvard.edu, hss.edu]
+    writing_rules: |
+      - Use the focus keyword about 10–12 times in 1,100–1,400 words (~1% density), including the first sentence,
+        1–2 H2 headings and the conclusion — always natural, never forced.
+      - Do NOT give free workout plans, home-workout routines, downloadable trackers or DIY templates.
+        Instead, steer readers to train with a Kaizen Klub coach and to take the free assessment.
+      - Mention Kaizen Klub naturally where it genuinely helps (coached small-group sessions, recovery facilities:
+        cold plunge, sauna, red light therapy), never as a hard sell in every paragraph.
+      - Only realistic timelines and claims (e.g. strength gains in 2–4 weeks, visible changes in 6–8+ weeks).
+      - Use 1–2 trusted external sources only: Cleveland Clinic, Mayo Clinic, Harvard Health, NHS, CDC, WHO,
+        NCCIH, ACE Fitness, ACSM, HSS — with real, existing URLs.
+      - Where it fits, link to: https://kaizenklub.in/programs/strength , https://kaizenklub.in/programs/yoga ,
+        https://kaizenklub.in/programs/mma
+      - Indian context: Indian foods, ₹ prices, Bengaluru weather/traffic where relevant.
+    cta:
+      title: Not sure where to start?
+      text: Book a free assessment with a Kaizen Klub coach — we'll check your strength, mobility and goals, then build your first month with you.
+      button: Take Free Assessment
+      url: https://forms.fillout.com/t/61JKRjYhkkus
+    enabled: true

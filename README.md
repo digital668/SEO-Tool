@@ -9,9 +9,10 @@ It runs free on **GitHub Actions**, so you don't need a server. **Read [SAFETY.m
 ## What happens every day (6:47 am IST)
 
 1. **Mondays:** a full **audit** of every site (broken links, missing meta, thin content, orphans, etc.), plus a **competitor sitemap scan** to find topics competitors cover that you don't.
-2. **Mondays and Thursdays:** **keyword research** from Google Search Console (your real queries and striking-distance keywords) and Google Autocomplete.
-3. **Which sites are due:** each site gets **1 blog every 2 days**, which is 5 per 10-day cycle, repeating. Sites are staggered, so with 20 sites about 10 write each day.
-4. **For each due site, one blog:**
+2. **Thursdays:** an **index check** asks Google (URL Inspection) whether each blog that went live 5+ days ago is indexed. If most aren't, you get a warning to slow down.
+3. **Mondays and Thursdays:** **keyword research** from Google Search Console (your real queries and striking-distance keywords) and Google Autocomplete.
+4. **Which sites are due:** each site gets **1 blog every 2 days**, which is 5 per 10-day cycle, repeating. Sites are staggered, so with 20 sites about 10 write each day.
+5. **For each due site, one blog:**
 
 | Step | Tool (all free except the Claude API) |
 |---|---|
@@ -19,10 +20,12 @@ It runs free on **GitHub Actions**, so you don't need a server. **Read [SAFETY.m
 | See what ranks on Google now: People Also Ask, gaps, facts with sources | Claude web search |
 | **Competitor analysis** of the ranking pages and your competitors' posts: word count, headings, FAQ/table/image use, terms most of them cover | Built-in, free (respects robots.txt) |
 | Write the article (Rank Math rules built into the brief) | Claude |
-| **Humanize:** a human-editor rewrite, then an AI-phrase scrubber, then readability scoring (Flesch, sentence variety, passive voice) | Claude + built-in free checks |
+| **Humanize:** a human-editor rewrite, then an AI-phrase scrubber, hidden-character cleanup, and readability scoring (Flesch, sentence variety, passive voice) | Claude + built-in free checks |
 | Remove unsafe links (your other sites, untrusted domains) | Built-in |
 | Free licensed **photo** uploaded to WordPress with keyword alt text, used as the featured image and in the body | Pexels API (free) or Openverse CC0 |
 | **Rank Math check:** all 21 tests, with automatic fixes (slug, TOC, paragraph length, sources, title) and a targeted rewrite if needed | Built-in |
+| **AI-search check:** answer-first sections, question headings, specifics and sources, so Google AI Overviews and ChatGPT can quote the post | Built-in |
+| **Content-quality score** against Google's "scaled content abuse" signals (filler, AI patterns, repetition, information density) | Built-in |
 | **Duplicate check** against every page on all your sites | Built-in |
 | **Safety gate:** schedule if everything passes, otherwise save as a **draft** with the reasons | Built-in |
 | **Format for the builder:** Divi gets native Divi modules; Elementor and Gutenberg get clean HTML in your Single Post template | Built-in |
@@ -43,13 +46,22 @@ Go to **Settings → Secrets and variables → Actions → New repository secret
 | `ANTHROPIC_API_KEY` | console.anthropic.com → API keys (add credit) |
 | `GSC_SERVICE_ACCOUNT_JSON` | See step 5 |
 | `PEXELS_API_KEY` | pexels.com/api → free key (optional; without it, Openverse CC0 images are used) |
-| `WP_PASS_<SITE KEY>` | One per site, see step 3 |
+| `WP_PASS_<SITE KEY>` | One per site: the key from the Connector plugin (step 3) |
 
-### 3. WordPress (each site)
-1. Create a user for the platform: **Editor** role, or **Administrator** if you want FAQ schema added automatically.
-2. **Users → Profile → Application Passwords**, type `SEO Autopilot` and click **Add New**. Copy the password.
-3. Save it as a GitHub secret `WP_PASS_` + the site key in capitals with `-` changed to `_`. For example, `nexgen-internet` becomes `WP_PASS_NEXGEN_INTERNET`.
-4. Upload **`wordpress-plugin/seo-autopilot-meta.php`** to `wp-content/mu-plugins/`, or zip it and install it as a plugin. This lets the platform set the Rank Math title, description and focus keyword, and switch on the Divi Builder for its posts.
+### 3. WordPress (each site): install the Connector plugin
+1. In WordPress, go to **Plugins → Add New → Upload Plugin**, choose **`wordpress-plugin/seo-autopilot-connector.zip`**, then **Install → Activate**.
+2. Go to **Settings → SEO Autopilot → Create connection key → Copy key**. The key is shown only once; if you lose it, just create a new one.
+3. In GitHub, add a secret named `WP_PASS_` + the site key in capitals with `-` changed to `_`, and paste the key as the value. For example, `kaizen-klub` becomes `WP_PASS_KAIZEN_KLUB`.
+4. Under **Create posts as**, pick a real author with a bio.
+
+What the key can and can't do:
+- It can only read content, upload images and create **draft or scheduled** posts.
+- It can't publish instantly, edit or delete anything, see users, change settings or install plugins.
+- After 10 wrong keys, that address is locked out for 15 minutes.
+- **Create new key** cuts off the old key immediately. **Switch OFF** pauses the repo.
+- The plugin includes the Rank Math, Yoast and Divi field support, so you don't need the old `seo-autopilot-meta.php` helper with it.
+
+*Fallback:* a WordPress Application Password also works as the secret value (then set `wp_user` in `sites.yaml` and install `seo-autopilot-meta.php` in `mu-plugins`). The platform detects which one you used.
 
 ### 4. Builders
 - **Elementor sites:** make sure you have a **Single Post template** (Elementor Pro → Theme Builder → Single Post, with a *Post Content* widget), or that your theme styles blog posts. New blogs appear inside it with your fonts and colours. Posts are not marked "Edit with Elementor", which avoids the blank-page bug.
@@ -108,6 +120,7 @@ Each run saves **`dashboard.html`**. Open the run in **Actions**, then **Artifac
 | `daily` | Writes 1 blog for every site that's due today |
 | `audit` | Site audit + internal links + competitor gaps |
 | `research` | Search Console + Autocomplete |
+| `indexcheck` | Asks Google whether published blogs are indexed |
 | `report` | Rebuilds the dashboard |
 | `auto` | What the daily schedule runs |
 
@@ -125,6 +138,9 @@ At **20 sites × 1 blog every 2 days ≈ 300 blogs a month, that's roughly $120�
 
 ---
 
+## Faster indexing (free)
+In each site, go to **Rank Math → Dashboard → Instant Indexing → On**. Every post is then sent to Bing and other search engines (through IndexNow) the moment it goes live, including scheduled posts. This also helps visibility in ChatGPT search. Google doesn't use IndexNow; the Thursday index check covers Google.
+
 ## Honest limits
 - **No search-volume numbers.** The free sources show real demand, but not monthly volumes.
 - **No backlink index.** Seeing who links to competitors needs a paid source. The platform gives internal-link fixes and manual prospecting searches.
@@ -141,6 +157,7 @@ sites.yaml                 your sites (edit this)
 SAFETY.md                  how the platform keeps sites safe + your checklist
 seo_platform/
   scheduler.py   1 blog / site / 2 days, staggered      planner.py      topic selection
+  quality.py     scaled-content score, AI-search check, hidden-character cleanup
   writer.py      research brief + article (Claude)     competitors.py  free competitor analysis + gaps
   humanize.py    editor pass, AI-phrase scrubber       rankmath.py     21 Rank Math tests + auto-fix
   images.py      Pexels / Openverse photos             formats.py      Divi / Elementor / Gutenberg output
@@ -149,7 +166,8 @@ seo_platform/
   crawler.py     site audit    gsc.py  Search Console  keywords.py     Autocomplete
   links.py       internal links + prospecting          report.py       dashboard data
 docs/index.html            dashboard
-wordpress-plugin/          helper for Rank Math / Yoast fields + Divi flag
+wordpress-plugin/          seo-autopilot-connector.zip (install this) + legacy mu-plugin helper
 .github/workflows/         the daily schedule
 tests/                     `pytest` (fake WordPress, fake Divi site, fake Claude)
+THIRD_PARTY_NOTICES.md     credits for code adapted from AgriciDaniel/claude-seo (MIT)
 ```

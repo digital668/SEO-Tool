@@ -7,8 +7,9 @@
     python -m seo_platform due          # show which sites are due a blog today
     python -m seo_platform daily        # write 1 blog for every site that is due today
     python -m seo_platform write        # write 1 blog now for the selected site(s), ignoring the schedule
+    python -m seo_platform indexcheck   # ask Google whether published blogs are indexed (also runs Thursdays)
     python -m seo_platform report       # rebuild dashboard data
-    python -m seo_platform auto         # what the daily schedule runs (audit Mon, research Mon+Thu, daily, report)
+    python -m seo_platform auto         # what the daily schedule runs (audit Mon, research Mon+Thu, index check Thu, daily, report)
 
 Add --site <key> to run for one site only.
 """
@@ -51,6 +52,8 @@ def hint(e: Exception) -> str:
     low = m.lower()
     if "is not set" in low and "secret" in low:
         return m + " → add it in Settings → Secrets and variables → Actions (name must match exactly)"
+    if "seo_autopilot" in low or "seo autopilot key" in low:
+        return m + " → open Settings → SEO Autopilot in WordPress (create a new key and paste it into the GitHub secret)"
     if " 401" in m or "incorrect_password" in low or "rest_not_logged_in" in low or "invalid_username" in low:
         return m + " → check wp_user in sites.yaml and the Application Password secret"
     if " 403" in m or "rest_forbidden" in low or "rest_cannot" in low:
@@ -100,7 +103,7 @@ def cmd_test(sites, args):
             raise RuntimeError(f"secret {s.secret_name} is not set")
         wp = WordPress(s)
         info = wp.test_connection()
-        log(f"   ✓ WordPress: {info['user']} {info['roles']} publish={info['can_publish']} "
+        log(f"   ✓ WordPress ({info['via']}): {info['user']} {info['roles']} publish={info['can_publish']} "
             f"upload={info['can_upload']} scripts={info['unfiltered_html']}")
         if not info["can_publish"]:
             raise RuntimeError("this WordPress user cannot publish posts — use an Editor or Administrator")
@@ -153,6 +156,45 @@ def cmd_plan(sites, args):
             claimed.add(x["focus_keyword"])
             log(f"   • {x['working_title']}  [{x['focus_keyword']}]")
     return each(sites, "plan", run)
+
+
+def cmd_indexcheck(sites, args):
+    """For blogs the platform published 5+ days ago: ask Google whether each one is indexed."""
+    def run(s: Site):
+        if not s.gsc_property:
+            log("   ! no gsc_property — skipped")
+            return
+        hist = planner.history(s)
+        wp = WordPress(s) if s.wp_password else None
+        cutoff = datetime.now(timezone.utc).timestamp() - 5 * 86400
+        checked = indexed = 0
+        for h in hist:
+            live_at = h.get("scheduled_for") or h.get("written_at")
+            if not h.get("post_id") or not live_at or h.get("index", {}).get("verdict") == "PASS":
+                continue
+            if datetime.fromisoformat(live_at).timestamp() > cutoff or checked >= 40:
+                continue
+            if wp:
+                try:
+                    p = wp.post(h["post_id"])
+                except Exception:
+                    continue
+                if p.get("status") != "publish":
+                    continue
+                h["link"] = p.get("link") or h.get("link")
+            res = gsc.inspect(s, h["link"])
+            h["index"] = res | {"checked_at": now()}
+            checked += 1
+            indexed += res.get("verdict") == "PASS"
+        planner.save_history(s, hist)
+        live = [h for h in hist if h.get("index")]
+        not_idx = [h for h in live if h["index"].get("verdict") != "PASS"]
+        log(f"   ✓ checked {checked}: {indexed} indexed now · {len(not_idx)} of {len(live)} checked blogs not indexed yet")
+        if len(live) >= 6 and len(not_idx) / len(live) > 0.5:
+            annotate(f"{s.key} (indexing)", f"{len(not_idx)} of {len(live)} auto-written blogs are not indexed by Google. "
+                     "That usually means Google sees them as low value — slow down (raise interval_days) and improve them.",
+                     "warning")
+    return each(sites, "indexcheck", run)
 
 
 def due_sites(sites: list[Site]) -> list[Site]:
@@ -242,12 +284,14 @@ def cmd_auto(sites, args):
         errs.update(cmd_audit(sites, args))
     if wd in (0, 3):
         errs.update(cmd_research(sites, args))
+    if wd == 3:
+        errs.update(cmd_indexcheck(sites, args))
     errs.update(cmd_daily(sites, args))
     return errs
 
 
 COMMANDS = {"test": cmd_test, "audit": cmd_audit, "research": cmd_research, "plan": cmd_plan,
-            "due": cmd_due, "daily": cmd_daily, "write": cmd_write, "report": cmd_report, "auto": cmd_auto}
+            "due": cmd_due, "daily": cmd_daily, "indexcheck": cmd_indexcheck, "write": cmd_write, "report": cmd_report, "auto": cmd_auto}
 
 
 def main(argv=None) -> int:
